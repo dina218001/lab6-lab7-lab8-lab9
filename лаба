@@ -1,0 +1,7 @@
+Эхо "# lab7_and_lab9a "> > > README.md>> 
+git init 
+git add README.md 
+git commit-m" first commit " 
+git remote add origin https://github.com/dina218001/lab7_and_lab9a.git 
+git push-U origin master
+                
