@@ -1,0 +1,133 @@
+#include<stdio.h>
+#include <locale.h>
+#include <stdlib.h>
+#define VVOD "vvod.txt"
+#define VIVOD "vivod.txt"
+#define N 5
+
+void vvod_klaviatura(int a[N][N]){
+		for (int i = 0; i < N; i++) {
+			for (int j = 0; j < N; j++) {
+				scanf("%d", &a[i][j]);
+			}
+		}
+}
+
+void vvod_file(int a[N][N])
+{
+	FILE* f;
+	f = fopen(VVOD, "r");
+	if (f) {
+		for (int i = 0; i < N; i++) {
+			for (int j = 0; j < N; j++) {
+				fscanf(f, "%d", &a[i][j]);
+			}
+		}
+		fclose(f);
+	} else {
+		printf("Ошибка при открытии %s\n", VVOD);
+		exit(-1);
+	}
+}
+
+int proverka_sortirovki(const int a[N][N], int i)
+{
+	if (a[i][1] == a[i][0]) {
+		return -1;
+	}
+	bool vozrastanie = a[i][1] > a[i][0];
+	bool ubyvanie = a[i][1] < a[i][0];
+	for (int j = 2; j < N; j++) {
+		if (vozrastanie && (a[i][j] <= a[i][j - 1])) {
+			return -1;
+		}
+		if (ubyvanie && (a[i][j] >= a[i][j - 1])) {
+			return -1;
+		}
+	}
+	return 1;
+}
+
+int* zapolnenie_massivov(int(*a)[N], int* x, void (*pfunc_input)(int[N][N]))
+{
+	pfunc_input(a);
+	for (int i = 0; i < N; i++) {
+		x[i] = proverka_sortirovki(a, i);
+	};
+	return x;
+}
+
+void poisk_min_max(const int a[N][N], int k, int& min, int& max)
+{
+	if (k == N) {
+		return;
+	}
+	if (a[k][k] < min) {
+		min = a[k][k];
+	}
+	if (a[k][k] > max) {
+		max = a[k][k];
+	}
+	poisk_min_max(a, k + 1, min, max);
+}
+
+void vivod(const int a[N][N], const int x[N], int y) {
+	printf("Исходная матрица a[%d][%d]:\n", N, N);
+	for (int i = 0; i < N; i++) {
+		for (int j = 0; j < N; j++) {
+			printf("%d\t", a[i][j]);
+		}
+		printf("\n");
+	}
+
+	printf("Масс. x[%d] (1 эл-ты соотв.строки упорядочены, -1 нет)):\n", N);
+	for (int i = 0; i < N; i++) {
+		printf("%d\t", x[i]);
+	}
+	printf("\n");
+
+	printf("y = %d (ср.арифм.наиб. и наим. эл-та гл.диагонали матр.)\n", y);
+
+	FILE* f;
+	f = fopen(VIVOD, "w");
+	if (f) {
+		fprintf(f, "Исходная матрица a[%d][%d]:\n", N, N);
+		for (int i = 0; i < N; i++) {
+			for (int j = 0; j < N; j++) {
+				fprintf(f, "%d\t", a[i][j]);
+			}
+			fprintf(f, "\n");
+		}
+
+		fprintf(f, "Масс. x[%d] (1 эл-ты соотв.строки упорядочены, -1 нет)):\n", N);
+		for (int i = 0; i < N; i++) {
+			fprintf(f, "%d\t", x[i]);
+		}
+		fprintf(f, "\n");
+
+		fprintf(f, "y = %d (ср.арифм.наиб. и наим. эл-та гл.диагонали матр.)\n", y);
+		fclose(f);
+	}	else {
+		printf("Ошибка при открытии %s", VIVOD);
+	}
+}
+
+int main()
+{
+	setlocale(LC_CTYPE, "");
+	int a[N][N];
+	int x[N];
+	int c;
+	void (*pfunc)(int[N][N]);
+	printf("Введите: 1 с клавиатуры, 2 из файла %s\n", VVOD);
+	do {
+		scanf("%d", &c);
+	} while ((c != 1) && (c != 2));
+	pfunc = c == 1 ? vvod_klaviatura : vvod_file;
+	zapolnenie_massivov(a, x, pfunc);
+	int min = a[0][0];
+	int max = a[0][0];
+	poisk_min_max(a, 1, min, max);
+	vivod(a, x, (min + max) / 2);
+	return 0;
+}
