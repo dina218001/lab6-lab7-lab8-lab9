@@ -1,0 +1,77 @@
+#include <stdio.h>
+#include <locale.h>
+
+void vivod(int** matr, int razmer) {
+	for (int stroka = 0; stroka < razmer; stroka++) {
+		for (int stolb = 0; stolb < razmer; stolb++) {
+			printf("%d\t", matr[stolb][stroka]);
+		}
+		printf("\n");
+	}
+}
+
+void sort_stolb(int* stolb, int razmer) {
+	bool flag_obmena;
+	int x;
+	do 	{
+		flag_obmena = false;
+		for (int i = 1; i < razmer; i++) {
+			if (stolb[i - 1] > stolb[i])
+			{
+                x = stolb[i]; 
+                stolb[i] = stolb[i - 1];
+                stolb[i - 1] = x;
+				flag_obmena = true;
+			}
+		}
+	} while (flag_obmena);
+}
+
+bool stolby_ravny(int* stolb1, int* stolb2, int razmer) {
+	for (int i = 0; i < razmer; i++) {
+		if (stolb1[i] != stolb2[i]) {
+			return false;
+		}
+	}
+	return true;
+}
+
+int main() {
+	setlocale(LC_CTYPE, "");
+	printf("Введите n - размерность матрицы a[n][n]: ");
+	int n;
+	scanf("%d", &n);
+	int** a, stroka, stolb;
+	a = new int* [n];
+	for (stolb = 0; stolb < n; stolb++) {
+		a[stolb] = new int[n];
+		printf("Введите %d чисел столбца [%d] (не равные 0):\n", n, stolb);
+		for (stroka = 0; stroka < n; stroka++) {
+		    do {
+			    scanf("%d", &a[stolb][stroka]);
+			    if (a[stolb][stroka] == 0) {
+		            printf("Введите число не равное 0:\n");
+			    }
+		    } while (a[stolb][stroka] == 0);
+		}
+	}
+	printf("Исходная матрица a[%d][%d]:\n", n, n);
+	vivod(a, n);
+    for (stolb = 0; stolb < n; stolb++) {
+		sort_stolb(a[stolb], n);
+	}	
+	for (int lev_stolb = 0; lev_stolb < n - 1; lev_stolb++) {
+		for (stolb = lev_stolb+1; stolb < n; stolb++) {
+			if (stolby_ravny(a[lev_stolb], a[stolb], n)) {
+			    for (stroka = 0; stroka < n; stroka++) {
+				    a[stolb][stroka] = 0;
+			    }
+				printf("У столбцов [%d] и [%d] одинаковый набор элементов\n", lev_stolb, stolb);
+			}
+		}
+	}
+	printf("Матрица-результат a[%d][%d]:\n", n, n);
+	vivod(a, n);
+	delete[]a;
+	return 0;
+}
